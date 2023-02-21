@@ -2,199 +2,61 @@ import React, { Component } from "react";
 import {
   View,
   StyleSheet,
+  ImageBackground,
+  Image,
   TextInput,
   TouchableOpacity,
   Text,
-  FlatList
+  Alert,
+  KeyboardAvoidingView
 } from "react-native";
-import { Avatar, ListItem, Icon } from "react-native-elements";
-import db from "../config";
+import firebase from "firebase";
 
-export default class SearchScreen extends Component {
+const bgImage = require("../assets/background1.png");
+const appIcon = require("../assets/appIcon.png");
+const appName = require("../assets/appName.png");
+
+export default class LoginScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      allTransactions: [],
-      lastVisibleTransaction: null,
-      searchText: ""
+   // criar estados para email e senha
     };
   }
-  componentDidMount = async () => {
-    this.getTransactions();
-  };
 
-  getTransactions = () => {
-    db.collection("transactions")
-      .limit(10)
-      .get()
-      .then(snapshot => {
-        snapshot.docs.map(doc => {
-          this.setState({
-            allTransactions: [...this.state.allTransactions, doc.data()],
-            lastVisibleTransaction: doc
-          });
-        });
-      });
-  };
-
-  handleSearch = async text => {
-    var enteredText = text.toUpperCase().split("");
-    text = text.toUpperCase();
-    this.setState({
-      allTransactions: []
-    });
-    if (!text) {
-      this.getTransactions();
-    }
-
-    if (enteredText[0] === "B") {
-      db.collection("transactions")
-        .where("book_id", "==", text)
-        .get()
-        .then(snapshot => {
-          snapshot.docs.map(doc => {
-            this.setState({
-              allTransactions: [...this.state.allTransactions, doc.data()],
-              lastVisibleTransaction: doc
-            });
-          });
-        });
-    } else if (enteredText[0] === "S") {
-      db.collection("transactions")
-        .where("student_id", "==", text)
-        .get()
-        .then(snapshot => {
-          snapshot.docs.map(doc => {
-            this.setState({
-              allTransactions: [...this.state.allTransactions, doc.data()],
-              lastVisibleTransaction: doc
-            });
-          });
-        });
-    }
-  };
-
-  fetchMoreTransactions = async text => {
-    var enteredText = text.toUpperCase().split("");
-    text = text.toUpperCase();
-
-    const { lastVisibleTransaction, allTransactions } = this.state;
-    if (enteredText[0] === "B") {
-      const query = await db
-        .collection("transactions")
-        .where("bookId", "==", text)
-        .startAfter(lastVisibleTransaction)
-        .limit(10)
-        .get();
-      query.docs.map(doc => {
-        this.setState({
-          allTransactions: [...this.state.allTransactions, doc.data()],
-          lastVisibleTransaction: doc
-        });
-      });
-    } else if (enteredText[0] === "S") {
-      const query = await db
-        .collection("transactions")
-        .where("bookId", "==", text)
-        .startAfter(this.state.lastVisibleTransaction)
-        .limit(10)
-        .get();
-      query.docs.map(doc => {
-        this.setState({
-          allTransactions: [...this.state.allTransactions, doc.data()],
-          lastVisibleTransaction: doc
-        });
-      });
-    }
-  };
-
-  renderItem = ({ item, i }) => {
-    var date = item.date
-      .toDate()
-      .toString()
-      .split(" ")
-      .splice(0, 4)
-      .join(" ");
-
-    var transactionType =
-      item.transaction_type === "issue" ? "entregue" : "devolvido";
-    return (
-      <View style={{ borderWidth: 1 }}>
-        <ListItem key={i} bottomDivider>
-          <Icon type={"antdesign"} name={"book"} size={40} />
-          <ListItem.Content>
-            <ListItem.Title style={styles.title}>
-              {`${item.book_name} ( ${item.book_id} )`}
-            </ListItem.Title>
-            <ListItem.Subtitle style={styles.subtitle}>
-              {`Este livro foi ${transactionType} por ${item.student_name}`}
-            </ListItem.Subtitle>
-            <View style={styles.lowerLeftContaiiner}>
-              <View style={styles.transactionContainer}>
-                <Text
-                  style={[
-                    styles.transactionText,
-                    {
-                      color:
-                        item.transaction_type === "issue"
-                          ? "#78D304"
-                          : "#0364F4"
-                    }
-                  ]}
-                >
-                  {item.transaction_type.charAt(0).toUpperCase() +
-                    item.transaction_type.slice(1)}
-                </Text>
-                <Icon
-                  type={"ionicon"}
-                  name={
-                    item.transaction_type === "issue"
-                      ? "checkmark-circle-outline"
-                      : "arrow-redo-circle-outline"
-                  }
-                  color={
-                    item.transaction_type === "issue" ? "#78D304" : "#0364F4"
-                  }
-                />
-              </View>
-              <Text style={styles.date}>{date}</Text>
-            </View>
-          </ListItem.Content>
-        </ListItem>
-      </View>
-    );
+  handleLogin = (email, password) => {
+  //Adicionar código para autenticação do Firebase
+    
   };
 
   render() {
-    const { searchText, allTransactions } = this.state;
+    const { email, password } = this.state;
     return (
-      <View style={styles.container}>
-        <View style={styles.upperContainer}>
-          <View style={styles.textinputContainer}>
-            <TextInput
-              style={styles.textinput}
-              onChangeText={text => this.setState({ searchText: text })}
-              placeholder={"Escreva aqui"}
-              placeholderTextColor={"#FFFFFF"}
-            />
+      <KeyboardAvoidingView behavior="padding" style={styles.container}>
+        <ImageBackground source={bgImage} style={styles.bgImage}>
+          <View style={styles.upperContainer}>
+            <Image source={appIcon} style={styles.appIcon} />
+            <Image source={appName} style={styles.appName} />
+          </View>
+          <View style={styles.lowerContainer}>
+            
+            // criar a caixa para digitar email 
+            
+            
+                
+            // criar a caixa para digitar senha
+          
+                
+                
             <TouchableOpacity
-              style={styles.scanbutton}
-              onPress={() => this.handleSearch(searchText)}
+              style={[styles.button, { marginTop: 20 }]}
+              onPress={() => this.handleLogin(email, password)}
             >
-              <Text style={styles.scanbuttonText}>Pesquisar</Text>
+              <Text style={styles.buttonText}>Entrar</Text>
             </TouchableOpacity>
           </View>
-        </View>
-        <View style={styles.lowerContainer}>
-          <FlatList
-            data={allTransactions}
-            renderItem={this.renderItem}
-            keyExtractor={(item, index) => index.toString()}
-            onEndReached={() => this.fetchMoreTransactions(searchText)}
-            onEndReachedThreshold={0.7}
-          />
-        </View>
-      </View>
+        </ImageBackground>
+      </KeyboardAvoidingView>
     );
   }
 }
@@ -202,75 +64,57 @@ export default class SearchScreen extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#5653D4"
-  },
-  upperContainer: {
-    flex: 0.2,
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  textinputContainer: {
-    borderWidth: 2,
-    borderRadius: 10,
-    flexDirection: "row",
-    backgroundColor: "#9DFD24",
-    borderColor: "#FFFFFF"
-  },
-  textinput: {
-    width: "57%",
-    height: 50,
-    padding: 10,
-    borderColor: "#FFFFFF",
-    borderRadius: 10,
-    borderWidth: 3,
-    fontSize: 18,
-    backgroundColor: "#5653D4",
-    fontFamily: "Rajdhani_600SemiBold",
-    color: "#FFFFFF"
-  },
-  scanbutton: {
-    width: 100,
-    height: 50,
-    backgroundColor: "#9DFD24",
-    borderTopRightRadius: 10,
-    borderBottomRightRadius: 10,
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  scanbuttonText: {
-    fontSize: 24,
-    color: "#0A0101",
-    fontFamily: "Rajdhani_600SemiBold"
-  },
-  lowerContainer: {
-    flex: 0.8,
     backgroundColor: "#FFFFFF"
   },
-  title: {
-    fontSize: 20,
-    fontFamily: "Rajdhani_600SemiBold"
+  bgImage: {
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center"
   },
-  subtitle: {
-    fontSize: 16,
-    fontFamily: "Rajdhani_600SemiBold"
-  },
-  lowerLeftContaiiner: {
-    alignSelf: "flex-end",
-    marginTop: -40
-  },
-  transactionContainer: {
-    flexDirection: "row",
-    justifyContent: "space-evenly",
+
+  upperContainer: {
+    flex: 0.5,
+    justifyContent: "center",
     alignItems: "center"
   },
-  transactionText: {
-    fontSize: 20,
-
-    fontFamily: "Rajdhani_600SemiBold"
+  appIcon: {
+    width: 280,
+    height: 280,
+    resizeMode: "contain",
+    marginTop: 80
   },
-  date: {
-    fontSize: 12,
+  appName: {
+    width: 130,
+    height: 130,
+    resizeMode: "contain"
+  },
+  lowerContainer: {
+    flex: 0.5,
+    alignItems: "center"
+  },
+  textinput: {
+    width: "75%",
+    height: 55,
+    padding: 10,
+    borderColor: "#FFFFFF",
+    borderWidth: 4,
+    borderRadius: 10,
+    fontSize: 18,
+    color: "#FFFFFF",
     fontFamily: "Rajdhani_600SemiBold",
-    paddingTop: 5
+    backgroundColor: "#5653D4"
+  },
+  button: {
+    width: "43%",
+    height: 55,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#F48D20",
+    borderRadius: 15
+  },
+  buttonText: {
+    fontSize: 24,
+    color: "#FFFFFF",
+    fontFamily: "Rajdhani_600SemiBold"
   }
 });
